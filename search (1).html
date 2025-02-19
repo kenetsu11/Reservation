@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Movies - CineMa Book</title>
+  <link rel="stylesheet" href="style (1).css">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+
+<body>
+  <div class="clock-container">
+    <p id="timezone">Fetching time...</p>
+  </div>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <h1>🎬 CineMa Book</h1>
+  </header>
+
+  <!-- Search Section -->
+  <div class="container">
+    <section class="search-section">
+      <form id="search-form">
+        <input type="text" id="movie-input" placeholder="Search for a movie..." required>
+        <button type="submit">Search</button>
+      </form>
+    </section>
+
+    <!-- Search Results -->
+    <section id="search-results" class="movie-category">
+      <h2>Search Results</h2>
+      <div class="movie-carousel" id="search-carousel"></div>
+      <a href="index.html" class="button">Back to Homepage</a>
+    </section>
+
+    <!-- Booking List Section -->
+    <section id="booking-section">
+      <h2>Your Bookings</h2>
+      <div id="booking-list"></div>
+    </section>
+
+    <!-- Add Leaflet map below bookings -->
+    <section id="map-section">
+      <h2>Nearby Cinemas</h2>
+      <div id="map" style="height: 400px;"></div>
+      <ul id="cinema-list-ul"></ul>
+    </section>
+  </div>
+
+  <!-- Booking Form Modal -->
+  <div id="booking-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modal-movie-title">Book Your Movie</h2>
+      <p id="modal-movie-price">Price: </p>
+      <form id="booking-form">
+        <label for="name">Your Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required>
+
+        <label for="time">Time:</label>
+        <input type="time" id="time" name="time" required>
+
+        <input type="hidden" id="movie-title" name="movie-title">
+        <button type="submit">Confirm Booking</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="script (1).js"></script>
+  
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script>
+    // Cinema data (latitude and longitude based on city)
+    const cinemas = [
+      { id: 1, name: "SM Megamall Cinema", lat: 14.5811, lon: 121.0607, address: "SM Megamall, Ortigas Center, Mandaluyong" },
+      { id: 2, name: "Greenhills Theater", lat: 14.5883, lon: 121.0497, address: "Greenhills Shopping Center, San Juan" },
+      { id: 3, name: "Robinsons Movieworld, Galleria", lat: 14.5867, lon: 121.0562, address: "Robinsons Galleria, Quezon City" },
+      { id: 4, name: "SM Mall of Asia Cinema", lat: 14.5333, lon: 120.9814, address: "SM Mall of Asia, Pasay" },
+      { id: 5, name: "Trinoma Cinema", lat: 14.6379, lon: 121.0447, address: "Trinoma Mall, Quezon City" },
+    ];
+
+    // Initialize the map (center on Metro Manila)
+    const map = L.map('map').setView([14.5995, 120.9842], 12); // Metro Manila coordinates
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Loop through cinemas and add markers on the map
+    cinemas.forEach(cinema => {
+      const marker = L.marker([cinema.lat, cinema.lon]).addTo(map);
+      marker.bindPopup(`<b>${cinema.name}</b><br>${cinema.address}`).openPopup();
+    });
+
+    // Populate the cinema list below the map
+    const cinemaListUl = document.getElementById('cinema-list-ul');
+    cinemas.forEach(cinema => {
+      const listItem = document.createElement('li');
+      listItem.textContent = cinema.name;
+      listItem.onclick = function () {
+        map.setView([cinema.lat, cinema.lon], 14); // Zoom into the cinema location
+        // Optionally show popup when the list item is clicked
+        L.popup()
+          .setLatLng([cinema.lat, cinema.lon])
+          .setContent(`<b>${cinema.name}</b><br>${cinema.address}`)
+          .openOn(map);
+      };
+      cinemaListUl.appendChild(listItem);
+    });
+  </script>
+</body>
+</html>

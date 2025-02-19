@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Now Showing - MovieFlix</title>
+  <link rel="stylesheet" href="style (1).css">
+</head>
+
+<body>
+  <div class="clock-container">
+    <p id="timezone">Fetching time...</p>
+  </div>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <h1>🎬 CineMa Book</h1>
+  </header>
+
+  <!-- Now Showing Section -->
+  <section id="now-showing" class="movie-category">
+    <h2>Now Showing</h2>
+    <div class="movie-carousel" id="now-showing-carousel">
+      <div class="movie-card" onclick="openBookingForm('Sonic the Hedgehog', 200)">
+        <img src="images (1)/sonic (1).jpg" alt="Sonic the Hedgehog">
+        <h3>Sonic the Hedgehog 3</h3>
+        <p>Price: ₱200</p>
+      </div>
+      <div class="movie-card" onclick="openBookingForm('Carry-On', 250)">
+        <img src="images (1)/carry-on (1).jpg" alt="Carry-On">
+        <h3>Carry-On</h3>
+        <p>Price: ₱250</p>
+      </div>
+      <div class="movie-card" onclick="openBookingForm('Nosferatu', 300)">
+        <img src="images (1)/nosferatu (1).jpg" alt="Nosferatu">
+        <h3>Nosferatu</h3>
+        <p>Price: ₱300</p>
+      </div>
+      <div class="movie-card" onclick="openBookingForm('The Wild Robot', 220)">
+        <img src="images (1)/wildrobot (1).jpg" alt="The Wild Robot">
+        <h3>The Wild Robot</h3>
+        <p>Price: ₱220</p>
+      </div>
+    </div>
+    <a href="search (1).html" class="button">Search for Movies</a>
+  </section>
+
+  <!-- Booking Form Modal -->
+  <div id="booking-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modal-movie-title">Book Your Movie</h2>
+      <form id="booking-form">
+        <label for="name">Your Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required>
+
+        <label for="time">Time:</label>
+        <input type="time" id="time" name="time" required>
+
+        <input type="hidden" id="movie-title" name="movie-title">
+        <input type="hidden" id="movie-price" name="movie-price">
+
+        <button type="submit">Confirm Booking</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Booking List Section -->
+  <section id="booking-section" class="movie-category">
+    <h2>Your Bookings</h2>
+    <div id="booking-list" class="booking-list"></div>
+  </section>
+
+  <!-- Time Script -->
+  <script>
+    // Fetch initial time from TimeZoneDB (for Manila time)
+    const apiKey = "S962X44UTSAA"; // API key
+    const apiUrl = `https://api.timezonedb.com/v2.1/get-time-zone?key=${apiKey}&format=json&by=zone&zone=Asia/Manila`;
+
+    fetch(apiUrl)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "OK") {
+          let currentTime = new Date(data.formatted); // Convert API time to Date object
+
+          // Function to update the clock every second
+          function updateClock() {
+            currentTime.setSeconds(currentTime.getSeconds() + 1); // Increment time
+            document.getElementById(
+              "timezone"
+            ).innerText = `Current Time: ${currentTime.toLocaleTimeString()}`;
+          }
+
+          // Start the real-time clock
+          setInterval(updateClock, 1000);
+        } else {
+          console.error("API Error:", data.message);
+        }
+      })
+      .catch((error) => console.error("Error fetching timezone:", error));
+
+    // Open the booking form modal
+    function openBookingForm(movieTitle, price) {
+      document.getElementById('movie-title').value = movieTitle;
+      document.getElementById('modal-movie-title').textContent = `Book Your Movie: ${movieTitle}`;
+      document.getElementById('movie-price').value = price;
+      document.getElementById('booking-modal').style.display = 'block';
+    }
+
+    // Close the booking modal
+    document.querySelector('.close').addEventListener('click', () => {
+      document.getElementById('booking-modal').style.display = 'none';
+    });
+
+    // Handle booking form submission
+    document.getElementById('booking-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const name = document.getElementById('name').value;
+      const date = document.getElementById('date').value;
+      const time = document.getElementById('time').value;
+      const movieTitle = document.getElementById('movie-title').value;
+      const price = document.getElementById('movie-price').value;
+
+      // Confirmation message
+      alert(`Booking confirmed for "${movieTitle}"!\nName: ${name}\nDate: ${date}\nTime: ${time}\nPrice: ₱${price}`);
+
+      // Display booking details
+      displayBooking(movieTitle, name, date, time, price);
+
+      // Close the modal
+      document.getElementById('booking-modal').style.display = 'none';
+    });
+
+    // Function to display booking details
+    function displayBooking(movieTitle, name, date, time, price) {
+      const bookingList = document.getElementById('booking-list');
+
+      // Create a new booking item
+      const bookingItem = document.createElement('div');
+      bookingItem.classList.add('booking-item');
+      bookingItem.innerHTML = `
+        <h3>${movieTitle}</h3>
+        <p>Name: ${name}</p>
+        <p>Date: ${date}</p>
+        <p>Time: ${time}</p>
+        <p>Price: ₱${price}</p>
+        <button class="delete-button" onclick="deleteBooking(this)">Delete Booking</button>
+      `;
+
+      // Add the booking item to the list
+      bookingList.appendChild(bookingItem);
+    }
+
+    // Function to delete booking
+    function deleteBooking(button) {
+      const bookingItem = button.parentElement; // Get the booking item div
+      bookingItem.remove(); // Remove the booking item from the list
+    }
+  </script>
+</body>
+</html>
